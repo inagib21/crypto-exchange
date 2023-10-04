@@ -10,11 +10,13 @@ import (
 )
 
 func main() {
+	// Start the server in a goroutine.
 	go server.StartServer()
 	time.Sleep(1 * time.Second)
 
 	c := client.NewClient()
 
+	// Configuration for the Market Maker.
 	cfg := mm.Config{
 		UserID:         8,
 		OrderSize:      10,
@@ -26,9 +28,12 @@ func main() {
 	}
 	maker := mm.NewMakerMaker(cfg)
 
+	// Start the Market Maker.
 	maker.Start()
 
 	time.Sleep(2 * time.Second)
+
+	// Start the market order placer in a goroutine.
 	go marketOrderPlacer(c)
 
 	select {}
@@ -38,18 +43,21 @@ func marketOrderPlacer(c *client.Client) {
 	ticker := time.NewTicker(500 * time.Millisecond)
 
 	for {
+		// Generate a random integer.
 		randint := rand.Intn(10)
 		bid := true
 		if randint < 7 {
 			bid = false
 		}
 
+		// Create a market order with random bid/ask and size.
 		order := client.PlaceOrderParams{
 			UserID: 7,
 			Bid:    bid,
 			Size:   1,
 		}
 
+		// Place the market order using the client.
 		_, err := c.PlaceMarketOrder(&order)
 		if err != nil {
 			panic(err)

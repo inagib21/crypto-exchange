@@ -20,6 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Constants for the order type and market.
 const (
 	MarketETH Market = "ETH"
 
@@ -71,14 +72,17 @@ type (
 )
 
 func StartServer() {
+	// Create a new Echo instance.
 	e := echo.New()
+	// Set a custom HTTP error handler.
 	e.HTTPErrorHandler = httpErrorHandler
 
+	// Initialize an Ethereum client
 	client, err := ethclient.Dial("http://localhost:8545")
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// Create a new exchange instance.
 	ex, err := NewExchange(exchangePrivateKey, client)
 	if err != nil {
 		log.Fatal(err)
@@ -88,8 +92,8 @@ func StartServer() {
 	ex.registerUser("a453611d9419d0e56f499079478fd72c37b251a94bfde4d19872c44cf65386e3", 7)
 	ex.registerUser("e485d098507f54e7733a205420dfddbe58db035fa577fc294ebd14db90767a52", 666)
 
+	// Define HTTP routes and their corresponding handlers.
 	e.POST("/order", ex.handlePlaceOrder)
-
 	e.GET("/trades/:market", ex.handleGetTrades)
 	e.GET("/order/:userID", ex.handleGetOrders)
 	e.GET("/book/:market", ex.handleGetBook)
@@ -97,7 +101,7 @@ func StartServer() {
 	e.GET("/book/:market/ask", ex.handleGetBestAsk)
 
 	e.DELETE("/order/:id", ex.cancelOrder)
-
+	// Start the HTTP server.
 	e.Start(":3000")
 }
 

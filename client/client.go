@@ -10,8 +10,10 @@ import (
 	"github.com/inagib21/crypto-exchange/server"
 )
 
+// Endpoint is the base URL of the cryptocurrency exchange server.
 const Endpoint = "http://localhost:3000"
 
+// PlaceOrderParams holds the parameters required to place an order.
 type PlaceOrderParams struct {
 	UserID int64
 	Bid    bool
@@ -20,16 +22,19 @@ type PlaceOrderParams struct {
 	Size  float64
 }
 
+// Client represents a client for interacting with the cryptocurrency exchange server.
 type Client struct {
 	*http.Client
 }
 
+// NewClient creates a new Client instance with the default HTTP client.
 func NewClient() *Client {
 	return &Client{
 		Client: http.DefaultClient,
 	}
 }
 
+// GetTrades fetches recent trades for a specific market.
 func (c *Client) GetTrades(market string) ([]*orderbook.Trade, error) {
 	e := fmt.Sprintf("%s/trades/%s", Endpoint, market)
 	req, err := http.NewRequest(http.MethodGet, e, nil)
@@ -50,6 +55,7 @@ func (c *Client) GetTrades(market string) ([]*orderbook.Trade, error) {
 	return trades, nil
 }
 
+// GetOrders retrieves a user's orders.
 func (c *Client) GetOrders(userID int64) (*server.GetOrdersResponse, error) {
 	e := fmt.Sprintf("%s/order/%d", Endpoint, userID)
 	req, err := http.NewRequest(http.MethodGet, e, nil)
@@ -70,6 +76,7 @@ func (c *Client) GetOrders(userID int64) (*server.GetOrdersResponse, error) {
 	return &orders, nil
 }
 
+// PlaceMarketOrder places a market order.
 func (c *Client) PlaceMarketOrder(p *PlaceOrderParams) (*server.PlaceOrderResponse, error) {
 	params := &server.PlaceOrderRequest{
 		UserID: p.UserID,
@@ -103,6 +110,7 @@ func (c *Client) PlaceMarketOrder(p *PlaceOrderParams) (*server.PlaceOrderRespon
 	return placeOrderResponse, nil
 }
 
+// GetBestAsk retrieves the best ask order for a market.
 func (c *Client) GetBestAsk() (*server.Order, error) {
 	e := fmt.Sprintf("%s/book/ETH/ask", Endpoint)
 	req, err := http.NewRequest(http.MethodGet, e, nil)
@@ -123,6 +131,7 @@ func (c *Client) GetBestAsk() (*server.Order, error) {
 	return order, err
 }
 
+// GetBestBid retrieves the best bid order for a market.
 func (c *Client) GetBestBid() (*server.Order, error) {
 	e := fmt.Sprintf("%s/book/ETH/bid", Endpoint)
 	req, err := http.NewRequest(http.MethodGet, e, nil)
@@ -143,6 +152,7 @@ func (c *Client) GetBestBid() (*server.Order, error) {
 	return order, err
 }
 
+// CancelOrder cancels an existing order.
 func (c *Client) CancelOrder(orderID int64) error {
 	e := fmt.Sprintf("%s/order/%d", Endpoint, orderID)
 	req, err := http.NewRequest(http.MethodDelete, e, nil)
@@ -158,6 +168,7 @@ func (c *Client) CancelOrder(orderID int64) error {
 	return nil
 }
 
+// PlaceLimitOrder places a limit order.
 func (c *Client) PlaceLimitOrder(p *PlaceOrderParams) (*server.PlaceOrderResponse, error) {
 	if p.Size == 0.0 {
 		return nil, fmt.Errorf("size cannot be 0 when placing a limit order")

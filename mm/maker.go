@@ -7,16 +7,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Config holds configuration parameters for the MarketMaker.
 type Config struct {
-	UserID         int64
-	OrderSize      float64
-	MinSpread      float64
-	SeedOffset     float64
-	ExchangeClient *client.Client
-	MakeInterval   time.Duration
-	PriceOffset    float64
+	UserID         int64          // UserID is the identifier of the market maker.
+	OrderSize      float64        // OrderSize is the size of orders placed by the market maker.
+	MinSpread      float64        // MinSpread is the minimum desired spread between bid and ask prices.
+	SeedOffset     float64        // SeedOffset is the offset used for seeding the market.
+	ExchangeClient *client.Client // ExchangeClient is the client for interacting with the exchange.
+	MakeInterval   time.Duration  // MakeInterval is the time interval between market maker actions.
+	PriceOffset    float64        // PriceOffset is the offset applied to bid and ask prices.
 }
 
+// MarketMaker represents a market maker responsible for placing orders on the exchange.
 type MarketMaker struct {
 	userID         int64
 	orderSize      float64
@@ -27,6 +29,7 @@ type MarketMaker struct {
 	makeInterval   time.Duration
 }
 
+// NewMakerMaker creates a new MarketMaker instance with the provided configuration.
 func NewMakerMaker(cfg Config) *MarketMaker {
 	return &MarketMaker{
 		userID:         cfg.UserID,
@@ -39,6 +42,7 @@ func NewMakerMaker(cfg Config) *MarketMaker {
 	}
 }
 
+// Start starts the MarketMaker and initiates the market making process.
 func (mm *MarketMaker) Start() {
 	logrus.WithFields(logrus.Fields{
 		"id":           mm.userID,
@@ -51,6 +55,7 @@ func (mm *MarketMaker) Start() {
 	go mm.makerLoop()
 }
 
+// makerLoop is the main loop for the market maker.
 func (mm *MarketMaker) makerLoop() {
 	ticker := time.NewTicker(mm.makeInterval)
 
@@ -102,6 +107,7 @@ func (mm *MarketMaker) makerLoop() {
 	}
 }
 
+// placeOrder places a limit order with the specified bid and price.
 func (mm *MarketMaker) placeOrder(bid bool, price float64) error {
 	bidOrder := &client.PlaceOrderParams{
 		UserID: mm.userID,
@@ -113,6 +119,7 @@ func (mm *MarketMaker) placeOrder(bid bool, price float64) error {
 	return err
 }
 
+// seedMarket seeds the market with initial bid and ask orders.
 func (mm *MarketMaker) seedMarket() error {
 	currentPrice := simulateFetchCurrentETHPrice()
 
@@ -143,8 +150,7 @@ func (mm *MarketMaker) seedMarket() error {
 	return err
 }
 
-// this will simulate a call to an other exchange fetching
-// the current ETH price so we can offset both for a bid and ask.
+// simulateFetchCurrentETHPrice simulates fetching the current ETH price from another exchange.
 func simulateFetchCurrentETHPrice() float64 {
 	time.Sleep(80 * time.Millisecond)
 
