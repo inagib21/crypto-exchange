@@ -20,9 +20,6 @@ This is an Ethereum exchange server built using Go. It allows users to place lim
 - **ETH Transfers:** The server supports ETH transfers between users when orders are matched.
 
 ## Installation
-Great, you can incorporate the use of the Makefile into your README to provide users with an even more streamlined experience. Here's how you can update the installation section to include instructions for using the Makefile:
-
-## Installation
 
 To run this project, you need to have Go and an Ethereum client (e.g., geth) installed on your machine.
 
